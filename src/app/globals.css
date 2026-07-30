@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #e94560;
+  --secondary: #2b3445;
+  --gray: #697282;
+  --background: #f6f9fc;
+  --black: #000000;
+  --white: #ffffff;
+}
+
+@layer utilities {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out;
+  }
+
+  .flex_center {
+    @apply flex items-center justify-center;
+  }
+}
