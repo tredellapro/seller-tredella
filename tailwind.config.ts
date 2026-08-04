@@ -9,6 +9,14 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1.5rem",
+        lg: "2.5rem",
+      },
+    },
     extend: {
       screens: {
         '3xl': '1800px',
