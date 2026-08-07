@@ -1,6 +1,7 @@
 import './globals.css';
 import { Poppins } from 'next/font/google';
 import Customprovider from '../redux/CustomProvider';
+import Header from 'components/layout/Header';
 import { createMetadata } from 'utils/metadataHelper';
 import { pageMetadataData } from 'data/meta-data';
 export const metadata = createMetadata(pageMetadataData.HomePage);
@@ -20,7 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} font-poppins antialiased`}>
-        <Customprovider>{children}</Customprovider>
+        <Customprovider>
+          <Header />
+          {children}
+        </Customprovider>
       </body>
     </html>
   );
