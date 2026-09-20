@@ -7,6 +7,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormError from './FormError';
 import TextField from 'components/ui/TextField';
+import MaskedTextField from 'components/ui/MaskedTextField';
 import SelectField from 'components/ui/SelectField';
 import FileUpload, { type UploadedFileInfo } from 'components/ui/FileUpload';
 import Button from 'components/ui/Button';
@@ -16,6 +17,17 @@ import {
   SUBMIT_SELLER_VERIFICATION
 } from 'graphql/seller';
 import { uploadSellerDocument } from 'lib/api';
+import {
+  UAE_DIAL_CODE,
+  formatEmiratesId,
+  formatLicenceNumber,
+  formatTrn,
+  formatUaeMobile,
+  isEmiratesId,
+  isTrn,
+  isUaeMobile,
+  toE164
+} from 'lib/formatters';
 import { EMIRATES, LEGAL_FORMS, SELLER_DOCUMENTS } from 'data/uae-business';
 import { errorMessage } from 'utils/graphqlError';
 import type {
@@ -27,22 +39,8 @@ import type {
 /* UAE trade registration. The account already exists at this point, so uploads
    go up authenticated and are attached to the store straight away. */
 
-/* People type these the way they are printed — with spaces and dashes — so
-   validate the digits, exactly as the API does, rather than the punctuation. */
-const digitsOf = (value: string): string => value.replace(/\D/g, '');
-
-const isUaeMobile = (value: string): boolean => {
-  const local = digitsOf(value)
-    .replace(/^00971/, '')
-    .replace(/^971/, '')
-    .replace(/^0/, '');
-  return /^5\d{8}$/.test(local);
-};
-
-const isEmiratesId = (value: string): boolean => {
-  const digits = digitsOf(value);
-  return digits.length === 15 && digits.startsWith('784');
-};
+/* The fields are masked as they are typed (see lib/formatters), so validation
+   only has to confirm the value is complete — not police its punctuation. */
 
 const schema = Yup.object({
   storeName: Yup.string().trim().required('Enter the name buyers will see.'),
@@ -57,7 +55,7 @@ const schema = Yup.object({
     .required('Enter a contact number.')
     .test(
       'uae-mobile',
-      'Enter a UAE mobile number, for example +971 50 123 4567.',
+      'Enter a UAE mobile number, for example 50 123 4567.',
       (value) => (value ? isUaeMobile(value) : false)
     ),
   tradeLicenseNumber: Yup.string()
@@ -78,9 +76,7 @@ const schema = Yup.object({
     ),
   trn: Yup.string()
     .trim()
-    .test('trn', 'A TRN is 15 digits.', (value) =>
-      !value ? true : digitsOf(value).length === 15
-    )
+    .test('trn', 'A TRN is 15 digits.', (value) => (!value ? true : isTrn(value)))
 });
 
 type Values = Yup.InferType<typeof schema>;
@@ -207,7 +203,8 @@ export default function BusinessDetailsForm({
               legalForm: values.legalForm,
               emirate: values.emirate,
               addressLine: values.addressLine.trim(),
-              phone: values.phone.trim(),
+              // the field holds only the local part; the dial code is fixed
+              phone: toE164(values.phone),
               tradeLicenseNumber: values.tradeLicenseNumber.trim(),
               tradeLicenseExpiry: values.tradeLicenseExpiry,
               emiratesIdNumber: values.emiratesIdNumber.trim(),
@@ -297,26 +294,33 @@ export default function BusinessDetailsForm({
         error={fieldError('addressLine')}
       />
 
-      <TextField
+      {/* +971 is fixed: every seller is UAE-licensed, so it is chrome, not input */}
+      <MaskedTextField
         name="phone"
         type="tel"
+        inputMode="numeric"
         label="Contact number"
-        placeholder="+971 50 123 4567"
-        autoComplete="tel"
+        prefix={UAE_DIAL_CODE}
+        placeholder="50 123 4567"
+        autoComplete="tel-national"
         value={formik.values.phone}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
+        format={formatUaeMobile}
+        onValueChange={(next) => formik.setFieldValue('phone', next)}
+        onBlur={() => formik.setFieldTouched('phone', true)}
         error={fieldError('phone')}
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <TextField
+        <MaskedTextField
           name="tradeLicenseNumber"
           label="Trade licence number"
           placeholder="CN-1234567"
           value={formik.values.tradeLicenseNumber}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+          format={formatLicenceNumber}
+          onValueChange={(next) =>
+            formik.setFieldValue('tradeLicenseNumber', next)
+          }
+          onBlur={() => formik.setFieldTouched('tradeLicenseNumber', true)}
           error={fieldError('tradeLicenseNumber')}
         />
         <TextField
@@ -332,22 +336,28 @@ export default function BusinessDetailsForm({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <TextField
+        <MaskedTextField
           name="emiratesIdNumber"
+          inputMode="numeric"
           label="Emirates ID number"
           placeholder="784-1990-1234567-1"
           value={formik.values.emiratesIdNumber}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+          format={formatEmiratesId}
+          onValueChange={(next) =>
+            formik.setFieldValue('emiratesIdNumber', next)
+          }
+          onBlur={() => formik.setFieldTouched('emiratesIdNumber', true)}
           error={fieldError('emiratesIdNumber')}
         />
-        <TextField
+        <MaskedTextField
           name="trn"
+          inputMode="numeric"
           label="TRN (VAT number)"
           placeholder="100123456700003"
           value={formik.values.trn ?? ''}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+          format={formatTrn}
+          onValueChange={(next) => formik.setFieldValue('trn', next)}
+          onBlur={() => formik.setFieldTouched('trn', true)}
           error={fieldError('trn')}
         />
       </div>
