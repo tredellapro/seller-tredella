@@ -45,4 +45,40 @@
   .flex_center {
     @apply flex items-center justify-center;
   }
+
+  /* Scrollbars in the brand palette rather than the OS default grey. Firefox
+     takes the standard properties; Chrome and Safari need the -webkit pseudo
+     elements, so both are declared. */
+  .brand-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--primary-rgb) / 0.35) transparent;
+  }
+
+  .brand-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .brand-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .brand-scroll::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--primary-rgb) / 0.3);
+    border-radius: 9999px;
+  }
+
+  .brand-scroll:hover::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--primary-rgb) / 0.55);
+  }
+
+  /* For strips that are obviously swipeable on their own — a tab row whose
+     last tab is visibly cut off. A bar there would read as a second underline. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

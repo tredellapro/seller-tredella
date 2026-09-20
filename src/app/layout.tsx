@@ -1,10 +1,11 @@
 import './globals.css';
 import { Poppins } from 'next/font/google';
 import Customprovider from '../redux/CustomProvider';
-import Header from 'components/layout/Header';
-import Footer from 'components/layout/Footer';
 import { createMetadata } from 'utils/metadataHelper';
 import { pageMetadataData } from 'data/meta-data';
+
+/* Site chrome lives in the (marketing) group, not here — the auth screens use
+   their own header and no footer. */
 export const metadata = createMetadata(pageMetadataData.HomePage);
 
 const poppins = Poppins({
@@ -22,11 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} font-poppins antialiased`}>
-        <Customprovider>
-          <Header />
-          {children}
-          <Footer />
-        </Customprovider>
+        <Customprovider>{children}</Customprovider>
       </body>
     </html>
   );

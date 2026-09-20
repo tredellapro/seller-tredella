@@ -26,8 +26,9 @@ export default function PricingCard({
           {plan.name}
         </h3>
         <p className="mt-4 flex items-end gap-2">
+          {/* AED, not dollars — the Figma's "$" is a designer habit, not the intent */}
           <span className="text-[40px] font-semibold leading-none text-primary sm:text-[48px]">
-            ${price}
+            AED {price}
           </span>
           <span className="pb-1 text-11 text-gray sm:text-12">
             {priceLabel}
