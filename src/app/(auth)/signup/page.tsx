@@ -1,5 +1,5 @@
 import AuthHeader from 'components/auth/AuthHeader';
-import SignUpForm from 'components/auth/SignUpForm';
+import SignUpFlow from 'components/auth/SignUpFlow';
 import { createMetadata } from 'utils/metadataHelper';
 import { pageMetadataData } from 'data/meta-data';
 
@@ -10,7 +10,7 @@ export default function SignUpPage() {
     <>
       <AuthHeader cta="signin" />
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 pb-16 pt-4">
-        <SignUpForm />
+        <SignUpFlow />
       </main>
     </>
   );

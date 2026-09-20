@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import AuthCard from './AuthCard';
 import FormError from './FormError';
 import TextField from 'components/ui/TextField';
 import PasswordField from 'components/ui/PasswordField';
@@ -43,8 +41,12 @@ const schema = Yup.object({
 
 type Values = Yup.InferType<typeof schema>;
 
-export default function SignUpForm() {
-  const router = useRouter();
+/** Step one: create the login. Trade registration follows in step two. */
+export default function SignUpForm({
+  onRegistered
+}: {
+  onRegistered: (_fullName: string) => void;
+}) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [registerSeller, { loading }] =
@@ -79,9 +81,9 @@ export default function SignUpForm() {
         if (!data?.registerSeller?.token)
           throw new Error('Could not create your account.');
 
+        // signed in from here on, so step two can upload documents
         setToken(data.registerSeller.token);
-        router.push('/dashboard');
-        router.refresh();
+        onRegistered(data.registerSeller.user.name);
       } catch (error) {
         setSubmitError(errorMessage(error, 'Could not create your account.'));
       }
@@ -92,98 +94,96 @@ export default function SignUpForm() {
     formik.touched[name] && (formik.errors[name] as string | undefined);
 
   return (
-    <AuthCard title="Create Your Account" subtitle="Please fill all forms to continue">
-      <form onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-5">
-        <FormError message={submitError} />
+    <form onSubmit={formik.handleSubmit} noValidate className="flex flex-col gap-5">
+      <FormError message={submitError} />
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <TextField
-            name="firstName"
-            label="First name"
-            placeholder="Hamza"
-            autoComplete="given-name"
-            value={formik.values.firstName}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={fieldError('firstName')}
-          />
-          <TextField
-            name="lastName"
-            label="Last Name"
-            placeholder="Tariq"
-            autoComplete="family-name"
-            value={formik.values.lastName}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={fieldError('lastName')}
-          />
-        </div>
-
+      <div className="grid gap-5 sm:grid-cols-2">
         <TextField
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="example@gmail.com"
-          autoComplete="email"
-          value={formik.values.email}
+          name="firstName"
+          label="First name"
+          placeholder="Hamza"
+          autoComplete="given-name"
+          value={formik.values.firstName}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={fieldError('email')}
+          error={fieldError('firstName')}
         />
-
-        <CountrySelect
-          name="country"
-          label="Country"
-          value={formik.values.country}
+        <TextField
+          name="lastName"
+          label="Last Name"
+          placeholder="Tariq"
+          autoComplete="family-name"
+          value={formik.values.lastName}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={fieldError('country')}
+          error={fieldError('lastName')}
         />
+      </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <PasswordField
-            name="password"
-            label="Password"
-            autoComplete="new-password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={fieldError('password')}
-          />
-          <PasswordField
-            name="confirmPassword"
-            label="Confirm Password"
-            autoComplete="new-password"
-            value={formik.values.confirmPassword}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={fieldError('confirmPassword')}
-          />
-        </div>
+      <TextField
+        name="email"
+        type="email"
+        label="Email"
+        placeholder="example@gmail.com"
+        autoComplete="email"
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={fieldError('email')}
+      />
 
-        <Checkbox
-          name="acceptedTerms"
-          checked={formik.values.acceptedTerms}
+      <CountrySelect
+        name="country"
+        label="Country"
+        value={formik.values.country}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={fieldError('country')}
+      />
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <PasswordField
+          name="password"
+          label="Password"
+          autoComplete="new-password"
+          value={formik.values.password}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={fieldError('acceptedTerms')}
-          label={
-            <>
-              By signing up, you agree to{' '}
-              <Link
-                href="/terms-and-conditions"
-                className="font-medium text-secondary underline"
-              >
-                Terms &amp; Condition
-              </Link>
-            </>
-          }
+          error={fieldError('password')}
         />
+        <PasswordField
+          name="confirmPassword"
+          label="Confirm Password"
+          autoComplete="new-password"
+          value={formik.values.confirmPassword}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={fieldError('confirmPassword')}
+        />
+      </div>
 
-        <Button type="submit" size="lg" fullWidth loading={loading}>
-          {loading ? 'Creating account…' : 'Create Account'}
-        </Button>
-      </form>
-    </AuthCard>
+      <Checkbox
+        name="acceptedTerms"
+        checked={formik.values.acceptedTerms}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={fieldError('acceptedTerms')}
+        label={
+          <>
+            By signing up, you agree to{' '}
+            <Link
+              href="/terms-and-conditions"
+              className="font-medium text-secondary underline"
+            >
+              Terms &amp; Condition
+            </Link>
+          </>
+        }
+      />
+
+      <Button type="submit" size="lg" fullWidth loading={loading}>
+        {loading ? 'Creating account…' : 'Create Account'}
+      </Button>
+    </form>
   );
 }

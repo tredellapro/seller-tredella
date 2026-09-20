@@ -8,7 +8,9 @@ import { TOKEN_COOKIE } from 'lib/token';
    and signed-in sellers off the auth screens. The token is still verified by
    the API on every request, so a forged cookie buys nothing. */
 
-const AUTH_ROUTES = ['/login', '/signup', '/forgot-password', '/reset-password'];
+/* /signup is deliberately absent: its second step runs after the account is
+   created, so a signed-in seller must be able to stay on it. */
+const AUTH_ROUTES = ['/login', '/forgot-password', '/reset-password'];
 
 export function proxy(req: NextRequest) {
   const token = req.cookies.get(TOKEN_COOKIE)?.value;
