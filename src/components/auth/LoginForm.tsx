@@ -14,6 +14,11 @@ import Button from 'components/ui/Button';
 import { LOGIN_SELLER } from 'graphql/auth';
 import { setToken } from 'lib/token';
 import { errorMessage } from 'utils/graphqlError';
+import {
+  DEMO_EMAIL,
+  DEMO_PASSWORD,
+  demoLoginEnabled
+} from 'lib/demoAccount';
 import type { LoginResult } from 'types/auth';
 
 const schema = Yup.object({
@@ -34,27 +39,26 @@ export default function LoginForm() {
   // ?next= lets a guarded page send the seller back where they were headed
   const next = searchParams.get('next') || '/dashboard';
 
+  const signIn = async (email: string, password: string) => {
+    setSubmitError(null);
+    try {
+      const { data } = await login({
+        variables: { email: email.trim(), password }
+      });
+      if (!data?.login?.token) throw new Error('Sign in failed.');
+
+      setToken(data.login.token);
+      router.push(next);
+      router.refresh();
+    } catch (error) {
+      setSubmitError(errorMessage(error, 'Could not sign you in.'));
+    }
+  };
+
   const formik = useFormik({
     initialValues: { email: '', password: '' },
     validationSchema: schema,
-    onSubmit: async (values) => {
-      setSubmitError(null);
-      try {
-        const { data } = await login({
-          variables: {
-            email: values.email.trim(),
-            password: values.password
-          }
-        });
-        if (!data?.login?.token) throw new Error('Sign in failed.');
-
-        setToken(data.login.token);
-        router.push(next);
-        router.refresh();
-      } catch (error) {
-        setSubmitError(errorMessage(error, 'Could not sign you in.'));
-      }
-    }
+    onSubmit: (values) => signIn(values.email, values.password)
   });
 
   const fieldError = (name: 'email' | 'password') =>
@@ -110,6 +114,24 @@ export default function LoginForm() {
             Create account
           </Link>
         </p>
+
+        {demoLoginEnabled && (
+          <div className="mt-1 border-t border-secondary/10 pt-5">
+            <Button
+              type="button"
+              variant="soft"
+              size="lg"
+              fullWidth
+              disabled={loading}
+              onClick={() => void signIn(DEMO_EMAIL, DEMO_PASSWORD)}
+            >
+              Preview with demo account
+            </Button>
+            <p className="mt-2 text-center text-12 text-gray">
+              Signs in as a sample store so you can walk the dashboard.
+            </p>
+          </div>
+        )}
       </form>
     </AuthCard>
   );
