@@ -9,6 +9,12 @@
   --background: #f6f9fc;
   --black: #000000;
   --white: #ffffff;
+  /* RGB channels so Tailwind opacity modifiers (e.g. bg-primary/90) work */
+  --primary-rgb: 233 69 96;
+  --secondary-rgb: 43 52 69;
+  --gray-rgb: 105 114 130;
+  --black-rgb: 0 0 0;
+  --white-rgb: 255 255 255;
 }
 
 @layer utilities {

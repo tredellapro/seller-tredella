@@ -2,6 +2,7 @@ import './globals.css';
 import { Poppins } from 'next/font/google';
 import Customprovider from '../redux/CustomProvider';
 import Header from 'components/layout/Header';
+import Footer from 'components/layout/Footer';
 import { createMetadata } from 'utils/metadataHelper';
 import { pageMetadataData } from 'data/meta-data';
 export const metadata = createMetadata(pageMetadataData.HomePage);
@@ -24,6 +25,7 @@ export default function RootLayout({
         <Customprovider>
           <Header />
           {children}
+          <Footer />
         </Customprovider>
       </body>
     </html>

@@ -28,12 +28,12 @@ export default {
         poppins: ["var(--font-Poppins)", ...fontFamily.sans],
       },
       colors: {
-        primary: "var(--primary)",
-        secondary: "var(--secondary)",
-        gray: "var(--gray)",
+        primary: "rgb(var(--primary-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--secondary-rgb) / <alpha-value>)",
+        gray: "rgb(var(--gray-rgb) / <alpha-value>)",
         background: "var(--background)",
-        black: "var(--black)",
-        white: "var(--white)",
+        black: "rgb(var(--black-rgb) / <alpha-value>)",
+        white: "rgb(var(--white-rgb) / <alpha-value>)",
       },
       fontSize: {
         "10": "10px",

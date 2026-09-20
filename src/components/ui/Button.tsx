@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'outline';
+type ButtonVariant = 'primary' | 'outline' | 'soft';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -16,7 +16,8 @@ const baseClasses =
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-white hover:bg-primary/90',
   outline:
-    'border border-secondary/20 bg-white text-secondary hover:border-secondary/40'
+    'border border-secondary/20 bg-white text-secondary hover:border-secondary/40',
+  soft: 'border border-secondary/15 bg-background text-secondary hover:bg-secondary/5'
 };
 
 export default function Button({
