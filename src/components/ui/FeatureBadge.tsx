@@ -9,12 +9,10 @@ interface FeatureBadgeProps {
   variant?: FeatureBadgeVariant;
   className?: string;
 }
-
 const variantClasses: Record<FeatureBadgeVariant, string> = {
   primary: 'flex-row rounded-full bg-primary px-4 py-3 sm:px-5',
   dark: 'flex-col rounded-2xl bg-secondary px-5 py-4 text-center sm:px-6 sm:py-5'
 };
-
 
 export default function FeatureBadge({
   icon,

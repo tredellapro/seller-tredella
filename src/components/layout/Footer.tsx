@@ -16,6 +16,8 @@ const socialIcons: Record<string, React.ReactNode> = {
   TikTok: <FaTiktok />
 };
 
+
+
 export default function Footer() {
   return (
     <footer className="bg-white">
