@@ -4,8 +4,6 @@ import Link from 'next/link';
 import Header from 'components/layout/Header';
 import Footer from 'components/layout/Footer';
 
-/* Sits at the app root so it catches every unmatched URL, which means it is
-   outside the (marketing) group and brings its own chrome. */
 export default function NotFound() {
   return (
     <>
