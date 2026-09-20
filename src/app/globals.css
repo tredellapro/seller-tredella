@@ -71,4 +71,14 @@
   .brand-scroll:hover::-webkit-scrollbar-thumb {
     background-color: rgb(var(--primary-rgb) / 0.55);
   }
+
+  /* For strips that are obviously swipeable on their own — a tab row whose
+     last tab is visibly cut off. A bar there would read as a second underline. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

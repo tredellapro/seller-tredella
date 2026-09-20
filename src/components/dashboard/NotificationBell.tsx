@@ -107,7 +107,7 @@ export default function NotificationBell() {
             Notifications
           </h2>
 
-          <div className="max-h-[360px] divide-y divide-secondary/8 overflow-y-auto">
+          <div className="brand-scroll max-h-[360px] divide-y divide-secondary/8 overflow-y-auto">
             {loading && notifications.length === 0 ? (
               <p className="px-4 py-8 text-center text-13 text-gray">
                 Loading…

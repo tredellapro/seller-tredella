@@ -2,12 +2,13 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import DashboardUtilityBar from './DashboardUtilityBar';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardTopBar from './DashboardTopBar';
+import StorefrontProvider from './StorefrontContext';
+import AccessProvider from './AccessContext';
 
-/* Frame for every dashboard page: contact strip across the top, sidebar on the
-   left from lg up, and a drawer below that. */
+/* Frame for every dashboard page: sidebar on the left from lg up, a drawer
+   below that, and the store's top bar above the page itself. */
 export default function DashboardShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -35,18 +36,24 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   }, [menuOpen]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardUtilityBar />
+    /* Every page below reads the chosen storefront, so the provider wraps the
+       whole frame rather than each page. */
+    <StorefrontProvider>
+      <AccessProvider>
+        <div className="min-h-screen bg-background">
+          <div className="flex">
+            <DashboardSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <div className="flex">
-        <DashboardSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
-
-        {/* min-w-0 stops a wide table from stretching the column past the viewport */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <DashboardTopBar onMenuClick={() => setMenuOpen(true)} />
-          <main className="flex-1 px-4 pb-12 sm:px-6 lg:px-8">{children}</main>
+            {/* min-w-0 stops a wide table from stretching the column past the viewport */}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <DashboardTopBar onMenuClick={() => setMenuOpen(true)} />
+              <main className="flex-1 px-4 pb-12 sm:px-6 lg:px-8">
+                {children}
+              </main>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </AccessProvider>
+    </StorefrontProvider>
   );
 }

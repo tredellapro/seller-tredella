@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@apollo/client';
 import FormError from './FormError';
 import StepIndicator from './StepIndicator';
-import IntervalToggle from 'components/billing/IntervalToggle';
 import PlanCard from 'components/billing/PlanCard';
 import { GET_PLANS, MY_SUBSCRIPTION, SUBSCRIBE_TO_PLAN } from 'graphql/billing';
 import { errorMessage } from 'utils/graphqlError';
@@ -18,10 +17,15 @@ import type {
 
 /* Plans come from the API rather than being hardcoded, so prices can change
    without a release. Nothing is charged yet — no gateway is connected — but the
-   flow already follows checkoutUrl, so wiring a bank in needs no change here. */
+   flow already follows checkoutUrl, so wiring a bank in needs no change here.
+
+   Two plans on one page, and nothing else to decide: plans are billed monthly,
+   so there is no period to pick. The API still takes an interval, so it is
+   pinned here rather than asked for. */
+const SIGNUP_INTERVAL: BillingInterval = 'MONTHLY';
+
 export default function ChoosePlanStep({ steps }: { steps: string[] }) {
   const router = useRouter();
-  const [interval, setInterval] = useState<BillingInterval>('MONTHLY');
   const [choosing, setChoosing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +47,7 @@ export default function ChoosePlanStep({ steps }: { steps: string[] }) {
     setChoosing(planCode);
     try {
       const { data: result } = await subscribe({
-        variables: { planCode, interval }
+        variables: { planCode, interval: SIGNUP_INTERVAL }
       });
 
       const checkoutUrl = result?.subscribeToPlan?.checkoutUrl;
@@ -72,10 +76,6 @@ export default function ChoosePlanStep({ steps }: { steps: string[] }) {
 
       <StepIndicator steps={steps} current={3} />
 
-      <div className="mt-6">
-        <IntervalToggle value={interval} onChange={setInterval} />
-      </div>
-
       {error && (
         <div className="mx-auto mt-6 max-w-[520px]">
           <FormError message={error} />
@@ -90,7 +90,6 @@ export default function ChoosePlanStep({ steps }: { steps: string[] }) {
             <PlanCard
               key={plan.id}
               plan={plan}
-              interval={interval}
               current={plan.code === currentPlanCode}
               loading={choosing === plan.code}
               disabled={choosing !== null}
@@ -101,7 +100,7 @@ export default function ChoosePlanStep({ steps }: { steps: string[] }) {
       )}
 
       <p className="mt-8 text-center text-12 text-gray">
-        You can change or cancel your plan at any time from your dashboard.
+        You can switch plans or cancel at any time from Plans in your dashboard.
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ const ORDER_TONE: Record<string, string> = {
   'Order Processing': 'text-blue-600',
   Shipped: 'text-green-600',
   Delivered: 'text-green-600',
+  Completed: 'text-green-600',
   Cancelled: 'text-primary',
   Pending: 'text-amber-600'
 };
@@ -27,6 +28,26 @@ export function OrderStatus({ status }: { status: string }) {
 export function PaymentStatus({ status }: { status: string }) {
   return (
     <span className={`text-13 ${PAYMENT_TONE[status] ?? 'text-secondary'}`}>
+      {status}
+    </span>
+  );
+}
+
+/* Where a listing sits in admin review. */
+const APPROVAL_TONE: Record<string, string> = {
+  Approved: 'text-green-600',
+  Pending: 'text-amber-600',
+  Cancelled: 'text-primary'
+};
+
+export function ApprovalStatus({ status }: { status: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-13 ${
+        APPROVAL_TONE[status] ?? 'text-secondary'
+      }`}
+    >
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
       {status}
     </span>
   );

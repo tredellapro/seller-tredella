@@ -2,33 +2,24 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  HiOutlineClock,
-  HiOutlineCurrencyDollar,
-  HiOutlineShoppingCart,
-  HiOutlineTag
-} from 'react-icons/hi';
 import Panel from './Panel';
+import PageHeader from './PageHeader';
 import PeriodSelect from './PeriodSelect';
 import StatCard from './StatCard';
 import DataTable, { type Column } from './DataTable';
 import { OrderStatus, PaymentStatus } from './StatusText';
+import { useStorefront } from './StorefrontContext';
 import BarChart from './charts/BarChart';
 import DonutChart from './charts/DonutChart';
 import {
-  INCOMING_ORDERS,
-  ORDER_BREAKDOWN,
-  REVENUE_BY_MONTH,
-  REVENUE_CEILING,
-  REVENUE_TICKS,
+  DASHBOARD_BY_MODE,
   aed,
   aedExact,
   compactAed,
   type IncomingOrder
 } from 'data/dashboard-sample';
-
-const MONTHS = ['Jan 2025', 'Feb 2025', 'Mar 2025'];
-const QUARTERS = ['July 2024', 'Aug 2024', 'Sep 2024'];
+import { firstWords } from 'lib/formatters';
+import { MODE_LABEL } from 'lib/storefront';
 
 const columns: Column<IncomingOrder>[] = [
   {
@@ -40,7 +31,9 @@ const columns: Column<IncomingOrder>[] = [
     key: 'product',
     header: 'Product',
     render: (row) => (
-      <div className="flex min-w-[260px] items-center gap-3">
+      /* Bounded, or a long description takes its intrinsic width and stretches
+         the table — see the same cell on the product list. */
+      <div className="flex w-[340px] min-w-[260px] max-w-[340px] items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={row.product.image}
@@ -50,7 +43,12 @@ const columns: Column<IncomingOrder>[] = [
         />
         <div className="min-w-0">
           <p className="truncate text-13 text-secondary">{row.product.name}</p>
-          <p className="truncate text-11 text-gray">{row.product.description}</p>
+          <p
+            title={row.product.description}
+            className="line-clamp-2 text-11 leading-snug text-gray"
+          >
+            {firstWords(row.product.description, 30)}
+          </p>
         </div>
       </div>
     )
@@ -60,7 +58,7 @@ const columns: Column<IncomingOrder>[] = [
     header: 'Items',
     render: (row) => (
       <span className="whitespace-nowrap text-13 text-secondary">
-        {row.items} Items
+        {row.items} {row.items === 1 ? 'Item' : 'Items'}
       </span>
     )
   },
@@ -92,54 +90,33 @@ const columns: Column<IncomingOrder>[] = [
   }
 ];
 
-/** The Analytics screen. Every block is a component that takes its data as props. */
+/**
+ * The Analytics screen, for whichever storefront is selected.
+ *
+ * Retail and wholesale get different headline cards, not just different
+ * numbers — see dashboard-sample.ts for why.
+ */
 export default function AnalyticsOverview() {
-  const [revenueMonth, setRevenueMonth] = useState(MONTHS[0]);
-  const [ordersMonth, setOrdersMonth] = useState(QUARTERS[0]);
+  const { mode } = useStorefront();
+  const data = DASHBOARD_BY_MODE[mode];
+
+  const [revenueMonth, setRevenueMonth] = useState(data.months[0]);
+  const [ordersMonth, setOrdersMonth] = useState(data.quarters[0]);
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="sr-only">Analytics</h1>
+      <PageHeader
+        title="Analytics"
+        breadcrumb={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: `${MODE_LABEL[mode]} analytics` }
+        ]}
+      />
 
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard
-          stats={[
-            {
-              icon: HiOutlineShoppingCart,
-              label: 'Orders',
-              value: '54',
-              period: 'Today',
-              delta: { value: '12', direction: 'up', comparison: 'vs same day last week' }
-            },
-            {
-              icon: HiOutlineClock,
-              label: 'Pending Orders',
-              value: '07'
-            }
-          ]}
-        />
-        <StatCard
-          stats={[
-            {
-              icon: HiOutlineCurrencyDollar,
-              label: 'Total Sales',
-              value: aed(2370),
-              period: 'Today',
-              delta: { value: aed(350), direction: 'up', comparison: 'vs same day last week' }
-            }
-          ]}
-        />
-        <StatCard
-          stats={[
-            {
-              icon: HiOutlineTag,
-              label: 'Total Deals',
-              value: aed(1280),
-              period: 'Today',
-              delta: { value: aed(147), direction: 'up', comparison: 'vs same day last week' }
-            }
-          ]}
-        />
+        {data.stats.map((group) => (
+          <StatCard key={group[0].label} stats={group} />
+        ))}
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[2fr_1fr]">
@@ -149,16 +126,16 @@ export default function AnalyticsOverview() {
             <PeriodSelect
               label="Revenue period"
               value={revenueMonth}
-              options={MONTHS}
+              options={data.months}
               onChange={setRevenueMonth}
             />
           }
         >
           <BarChart
-            data={REVENUE_BY_MONTH}
-            max={REVENUE_CEILING}
-            ticks={REVENUE_TICKS}
-            seriesLabel="Sales"
+            data={data.revenue}
+            max={data.revenueCeiling}
+            ticks={data.revenueTicks}
+            seriesLabel={data.revenueSeriesLabel}
             formatValue={aed}
             formatTick={compactAed}
           />
@@ -170,18 +147,18 @@ export default function AnalyticsOverview() {
             <PeriodSelect
               label="Order analytics period"
               value={ordersMonth}
-              options={QUARTERS}
+              options={data.quarters}
               onChange={setOrdersMonth}
             />
           }
         >
-          <DonutChart data={ORDER_BREAKDOWN} />
+          <DonutChart data={data.breakdown} />
         </Panel>
       </div>
 
       <Panel
         flush
-        title="Incoming Orders"
+        title={data.ordersTitle}
         action={
           <Link
             href="/dashboard/orders"
@@ -194,9 +171,9 @@ export default function AnalyticsOverview() {
         <div className="mt-4">
           <DataTable
             columns={columns}
-            rows={INCOMING_ORDERS}
+            rows={data.orders}
             rowKey={(row) => row.id}
-            emptyMessage="No incoming orders yet."
+            emptyMessage={`No ${MODE_LABEL[mode].toLowerCase()} orders yet.`}
           />
         </div>
       </Panel>

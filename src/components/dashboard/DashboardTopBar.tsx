@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApolloClient, useQuery } from '@apollo/client';
 import {
+  HiOutlineLockClosed,
   HiOutlineLogout,
   HiOutlineMenu,
   HiOutlineOfficeBuilding,
   HiOutlineRefresh
 } from 'react-icons/hi';
 import NotificationBell from './NotificationBell';
+import { useStorefront } from './StorefrontContext';
 import { MY_SELLER_ACCOUNT } from 'graphql/seller';
 import { clearToken } from 'lib/token';
+import { MODE_LABEL } from 'lib/storefront';
 import type { MySellerAccountResult } from 'types/seller';
-
-type StoreMode = 'WHOLESALE' | 'RETAIL';
 
 /** Matches how order numbers are shortened elsewhere. */
 const storeId = (id: string): string => `SID-${id.slice(-6).toUpperCase()}`;
@@ -27,7 +27,7 @@ export default function DashboardTopBar({
 }) {
   const router = useRouter();
   const client = useApolloClient();
-  const [mode, setMode] = useState<StoreMode>('WHOLESALE');
+  const { mode, setMode, canSwitch, planName } = useStorefront();
 
   const { data } = useQuery<MySellerAccountResult>(MY_SELLER_ACCOUNT, {
     fetchPolicy: 'cache-and-network',
@@ -72,19 +72,34 @@ export default function DashboardTopBar({
 
       {/* ml-auto keeps the actions on the right once the bar wraps */}
       <div className="ml-auto flex items-center gap-2 sm:gap-4">
-        {/* Retail and wholesale are separate dashboards in the design; this
-            switches between them once those screens exist. */}
-        <button
-          type="button"
-          onClick={() =>
-            setMode((m) => (m === 'WHOLESALE' ? 'RETAIL' : 'WHOLESALE'))
-          }
-          aria-label={`Storefront: ${mode.toLowerCase()}. Switch.`}
-          className="flex items-center gap-2 rounded-full border border-secondary/15 bg-white px-4 py-2 text-13 text-secondary transition-colors hover:border-primary/40"
-        >
-          {mode === 'WHOLESALE' ? 'Wholesale' : 'Retail'}
-          <HiOutlineRefresh className="text-16 text-gray" aria-hidden="true" />
-        </button>
+        {/* Retail and wholesale are separate storefronts. Everything below the
+            bar — figures, orders, products, the product form — follows this. */}
+        {canSwitch ? (
+          <button
+            type="button"
+            onClick={() => setMode(mode === 'WHOLESALE' ? 'RETAIL' : 'WHOLESALE')}
+            aria-label={`Storefront: ${MODE_LABEL[mode]}. Switch to ${
+              mode === 'WHOLESALE' ? 'retail' : 'wholesale'
+            }.`}
+            className="flex items-center gap-2 rounded-full border border-secondary/15 bg-white px-4 py-2 text-13 text-secondary transition-colors hover:border-primary/40"
+          >
+            {MODE_LABEL[mode]}
+            <HiOutlineRefresh className="text-16 text-gray" aria-hidden="true" />
+          </button>
+        ) : (
+          /* The retail plan has no second storefront, so there is nothing to
+             press — a dead button would only invite the question. */
+          <span
+            title={`${planName ?? 'Your plan'} covers retail selling. Upgrade to add wholesale.`}
+            className="flex items-center gap-2 rounded-full border border-secondary/15 bg-background px-4 py-2 text-13 text-gray"
+          >
+            {MODE_LABEL[mode]}
+            <HiOutlineLockClosed className="text-14" aria-hidden="true" />
+            <span className="sr-only">
+              — your plan covers retail only. Upgrade to add wholesale.
+            </span>
+          </span>
+        )}
 
         <NotificationBell />
 

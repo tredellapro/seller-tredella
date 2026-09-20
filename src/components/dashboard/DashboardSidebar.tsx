@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HiX } from 'react-icons/hi';
 import { DASHBOARD_NAV } from 'data/dashboard-nav';
+import { useAccess } from './AccessContext';
 
 interface DashboardSidebarProps {
   /** Mobile only: the drawer is open. */
@@ -17,6 +18,7 @@ export default function DashboardSidebar({
   onClose
 }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const access = useAccess();
 
   /* /dashboard is the Analytics page, so it must match exactly — otherwise it
      would light up on every section beneath it. */
@@ -24,6 +26,16 @@ export default function DashboardSidebar({
     href === '/dashboard'
       ? pathname === '/dashboard'
       : pathname === href || pathname.startsWith(`${href}/`);
+
+  /* A member only sees what their role reaches, and a group with nothing left
+     in it disappears with its heading rather than leaving a stray label. */
+  const groups = DASHBOARD_NAV.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => {
+      const key = access.sectionKeyFor(item.href);
+      return key === null || access.canView(key);
+    })
+  })).filter((group) => group.items.length > 0);
 
   return (
     <>
@@ -69,7 +81,7 @@ export default function DashboardSidebar({
         </div>
 
         <nav className="flex flex-1 flex-col gap-7 px-6 pb-8">
-          {DASHBOARD_NAV.map((group) => (
+          {groups.map((group) => (
             <div key={group.title}>
               <p className="px-3 pb-2 text-11 font-semibold uppercase tracking-wider text-gray">
                 {group.title}

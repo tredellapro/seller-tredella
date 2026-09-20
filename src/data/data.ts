@@ -68,25 +68,32 @@ export interface PricingPlan {
   benefits: PlanBenefit[];
 }
 
+/* Mirrors PLAN_CATALOGUE in the backend. The marketing page is static and does
+   not call the API, so these two lists have to be kept in step by hand — what
+   separates the tiers is which storefronts a seller gets. */
 export const pricingPlans: PricingPlan[] = [
   {
-    name: 'Basic Plan',
+    name: 'Retail',
     monthlyPrice: 150,
-    benefitsIntro: 'Everything in our basic plan plus...',
+    benefitsIntro: 'Sell single units to shoppers across the UAE.',
     benefits: [
+      { text: 'Retail storefront', included: true },
       { text: 'Unlimited product listings', included: true },
       { text: '10 product showcases', included: true },
       { text: '20 RFQ responses a month', included: true },
       { text: 'Business verification support', included: true },
+      { text: 'Wholesale storefront', included: false },
       { text: 'Full-service onboarding help for 60 days', included: false },
       { text: 'Dedicated Account Manager', included: false }
     ]
   },
   {
-    name: 'Standard Plan',
+    name: 'Wholesale + Retail',
     monthlyPrice: 200,
-    benefitsIntro: 'Everything in our standard plan plus...',
+    benefitsIntro: 'Everything in Retail, plus the wholesale storefront.',
     benefits: [
+      { text: 'Retail storefront', included: true },
+      { text: 'Wholesale storefront', included: true },
       { text: 'Unlimited product listings', included: true },
       { text: '20 product showcases', included: true },
       { text: '40 RFQ responses a month', included: true },

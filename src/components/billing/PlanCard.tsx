@@ -2,15 +2,20 @@
 
 import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
 import Button from 'components/ui/Button';
-import type { BillingInterval, Plan } from 'types/billing';
+import type { Plan } from 'types/billing';
+
+/* Plans are billed monthly. Quarterly was dropped as a product, so there is no
+   period to choose and the card never asks about one — the API still carries
+   BillingInterval, and the seller app only ever sends MONTHLY. */
 
 interface PlanCardProps {
   plan: Plan;
-  interval: BillingInterval;
   /** Marks the plan the seller is already on. */
   current?: boolean;
   loading?: boolean;
   disabled?: boolean;
+  /** Defaults to "Choose plan". */
+  ctaLabel?: string;
   onChoose: (_planCode: string) => void;
 }
 
@@ -20,15 +25,12 @@ const formatAed = (amount: number, currency: string): string =>
 
 export default function PlanCard({
   plan,
-  interval,
   current = false,
   loading = false,
   disabled = false,
+  ctaLabel = 'Choose plan',
   onChoose
 }: PlanCardProps) {
-  const quarterly = interval === 'QUARTERLY';
-  const price = quarterly ? plan.quarterlyPrice : plan.monthlyPrice;
-
   const benefits = plan.features.filter((f) => f.kind === 'FEATURE');
   const notes = plan.features.filter((f) => f.kind === 'NOTE');
 
@@ -50,16 +52,9 @@ export default function PlanCard({
 
         <p className="mt-3 flex flex-wrap items-baseline gap-x-2">
           <span className="text-36 font-bold text-primary">
-            {formatAed(price, plan.currency)}
+            {formatAed(plan.monthlyPrice, plan.currency)}
           </span>
-          <span className="text-13 text-secondary">
-            {quarterly ? 'Per quarter' : 'Per month'}
-          </span>
-          {quarterly && (
-            <span className="text-13 font-semibold text-secondary">
-              (save 10%)
-            </span>
-          )}
+          <span className="text-13 text-secondary">Per month</span>
         </p>
 
         <Button
@@ -72,7 +67,7 @@ export default function PlanCard({
           disabled={disabled || current}
           onClick={() => onChoose(plan.code)}
         >
-          {current ? 'Your current plan' : loading ? 'Setting up…' : 'Choose plan'}
+          {current ? 'Your current plan' : loading ? 'Setting up…' : ctaLabel}
         </Button>
       </div>
 

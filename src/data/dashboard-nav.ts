@@ -4,7 +4,6 @@ import {
   HiOutlineChartBar,
   HiOutlineChatAlt2,
   HiOutlineClipboardList,
-  HiOutlineClock,
   HiOutlineCog,
   HiOutlineCreditCard,
   HiOutlineShoppingBag,
@@ -73,8 +72,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
         label: 'Complaints',
         href: '/dashboard/complaints',
         icon: HiOutlineSupport
-      },
-      { label: 'History', href: '/dashboard/history', icon: HiOutlineClock }
+      }
     ]
   }
 ];

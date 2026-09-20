@@ -95,6 +95,18 @@ export const formatLicenceNumber = (value: string): string =>
 export const significantBefore = (value: string, caret: number): number =>
   value.slice(0, caret).replace(/[^A-Za-z0-9]/g, '').length;
 
+/**
+ * The first `count` words, with an ellipsis when anything was dropped.
+ *
+ * A product description is as long as the seller made it, and a listing page
+ * cannot hand a whole paragraph to one table cell. Cutting by word rather than
+ * by character keeps the last word whole.
+ */
+export const firstWords = (text: string, count: number): string => {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  return words.length <= count ? text.trim() : `${words.slice(0, count).join(' ')}…`;
+};
+
 /** Index just after the nth mask-significant character. */
 export const caretAfter = (value: string, count: number): number => {
   if (count <= 0) return 0;
