@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApolloClient, useQuery } from '@apollo/client';
-import { HiOutlineLogout, HiOutlineRefresh, HiOutlineOfficeBuilding } from 'react-icons/hi';
+import {
+  HiOutlineLogout,
+  HiOutlineMenu,
+  HiOutlineOfficeBuilding,
+  HiOutlineRefresh
+} from 'react-icons/hi';
 import NotificationBell from './NotificationBell';
 import { MY_SELLER_ACCOUNT } from 'graphql/seller';
 import { clearToken } from 'lib/token';
@@ -14,7 +19,12 @@ type StoreMode = 'WHOLESALE' | 'RETAIL';
 /** Matches how order numbers are shortened elsewhere. */
 const storeId = (id: string): string => `SID-${id.slice(-6).toUpperCase()}`;
 
-export default function DashboardTopBar() {
+export default function DashboardTopBar({
+  onMenuClick
+}: {
+  /** Opens the sidebar drawer; only rendered below lg, where it is hidden. */
+  onMenuClick?: () => void;
+}) {
   const router = useRouter();
   const client = useApolloClient();
   const [mode, setMode] = useState<StoreMode>('WHOLESALE');
@@ -34,14 +44,26 @@ export default function DashboardTopBar() {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-8">
-      <div className="flex min-w-0 items-center gap-4">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background text-24 text-gray">
+      <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+        {onMenuClick && (
+          <button
+            type="button"
+            onClick={onMenuClick}
+            aria-label="Open menu"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-24 text-secondary transition-colors hover:text-primary lg:hidden"
+          >
+            <HiOutlineMenu />
+          </button>
+        )}
+
+        <span className="hidden h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-background text-24 text-gray sm:flex">
           <HiOutlineOfficeBuilding aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <h1 className="truncate text-20 font-semibold text-secondary">
+          {/* Persistent chrome, not the page heading — each page owns its h1 */}
+          <p className="truncate text-20 font-semibold text-secondary">
             {store?.name ?? 'Your store'}
-          </h1>
+          </p>
           <p className="truncate text-13 text-gray">
             {store ? `Store ID: ${storeId(store.id)}` : 'Loading…'}
           </p>
