@@ -42,7 +42,7 @@ export default function DashboardSidebar({
           unambiguous, and the drawer is only ever on screen below lg. */}
       <aside
         aria-label="Dashboard"
-        className={`fixed inset-y-0 left-0 z-50 w-[253px] shrink-0 flex-col overflow-y-auto border-r border-secondary/10 bg-white lg:sticky lg:top-0 lg:z-auto lg:flex lg:h-screen ${
+        className={`brand-scroll fixed inset-y-0 left-0 z-50 w-[253px] shrink-0 flex-col overflow-y-auto border-r border-secondary/10 bg-white lg:sticky lg:top-0 lg:z-auto lg:flex lg:h-screen ${
           open ? 'flex' : 'hidden'
         }`}
       >
