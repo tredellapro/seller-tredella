@@ -1,10 +1,16 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from 'components/ui/Button';
 
 interface AuthHeaderProps {
-  /** Which way the visitor is being pointed: to signup, or back to login. */
-  cta: 'signup' | 'signin';
+  /**
+   * Which way the visitor is being pointed: to signup, back to login, or —
+   * on the plan step — straight past it.
+   */
+  cta: 'signup' | 'signin' | 'skip';
+  onSkip?: () => void;
 }
 
 const COPY = {
@@ -12,9 +18,7 @@ const COPY = {
   signin: { prompt: 'Already have account?', label: 'Sign In', href: '/login' }
 } as const;
 
-export default function AuthHeader({ cta }: AuthHeaderProps) {
-  const { prompt, label, href } = COPY[cta];
-
+export default function AuthHeader({ cta, onSkip }: AuthHeaderProps) {
   return (
     <header className="relative z-10 flex items-center justify-between gap-4 px-6 py-6 sm:px-10">
       <Link href="/" aria-label="Tredella home">
@@ -28,13 +32,25 @@ export default function AuthHeader({ cta }: AuthHeaderProps) {
         />
       </Link>
 
-      <div className="flex items-center gap-3">
-        {/* the prompt is a nicety — drop it before it can wrap on small screens */}
-        <span className="hidden text-14 text-secondary sm:inline">{prompt}</span>
-        <Button href={href} variant="primary" className="whitespace-nowrap">
-          {label}
+      {cta === 'skip' ? (
+        <Button type="button" variant="primary" onClick={onSkip}>
+          Skip
         </Button>
-      </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          {/* the prompt is a nicety — drop it before it can wrap on small screens */}
+          <span className="hidden text-14 text-secondary sm:inline">
+            {COPY[cta].prompt}
+          </span>
+          <Button
+            href={COPY[cta].href}
+            variant="primary"
+            className="whitespace-nowrap"
+          >
+            {COPY[cta].label}
+          </Button>
+        </div>
+      )}
     </header>
   );
 }

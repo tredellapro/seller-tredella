@@ -87,9 +87,12 @@ type Values = Yup.InferType<typeof schema>;
 type DocumentState = Record<string, UploadedFileInfo | null>;
 
 export default function BusinessDetailsForm({
-  defaultStoreName = ''
+  defaultStoreName = '',
+  onSubmitted
 }: {
   defaultStoreName?: string;
+  /** Hands control back to the flow, which moves on to plan selection. */
+  onSubmitted?: () => void;
 }) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -212,6 +215,12 @@ export default function BusinessDetailsForm({
             }
           }
         });
+
+        if (onSubmitted) {
+          onSubmitted();
+          return;
+        }
+        // standalone use (e.g. completing this later from the dashboard)
         router.push('/dashboard');
         router.refresh();
       } catch (error) {
