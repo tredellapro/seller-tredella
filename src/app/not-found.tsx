@@ -1,9 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import Header from 'components/layout/Header';
+import Footer from 'components/layout/Footer';
+
+/* Sits at the app root so it catches every unmatched URL, which means it is
+   outside the (marketing) group and brings its own chrome. */
 export default function NotFound() {
   return (
-    <div className="flex_center h-[90vh]">
+    <>
+      <Header />
+      <div className="flex_center h-[90vh]">
       <div className="flex flex-col items-center gap-4 relative">
         <h2 className="text-2xl xsm:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-black">
           There&apos;s <span className="uppercase">Nothing</span> here ...
@@ -20,6 +27,8 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }
