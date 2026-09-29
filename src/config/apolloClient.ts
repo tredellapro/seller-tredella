@@ -9,8 +9,6 @@ const httpLink = new HttpLink({
     'http://localhost:4000/graphql'
 });
 
-/* Read the cookie per request rather than once at module load, so a sign-in or
-   sign-out takes effect without a reload. */
 const authLink = setContext((_operation, { headers }) => {
   const token = getToken();
   return {
