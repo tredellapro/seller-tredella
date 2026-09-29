@@ -6,6 +6,7 @@ import DashboardSidebar from './DashboardSidebar';
 import DashboardTopBar from './DashboardTopBar';
 import StorefrontProvider from './StorefrontContext';
 import AccessProvider from './AccessContext';
+import AccountProvider from './AccountContext';
 
 /* Frame for every dashboard page: sidebar on the left from lg up, a drawer
    below that, and the store's top bar above the page itself. */
@@ -40,19 +41,24 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
        whole frame rather than each page. */
     <StorefrontProvider>
       <AccessProvider>
-        <div className="min-h-screen bg-background">
-          <div className="flex">
-            <DashboardSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <AccountProvider>
+          <div className="min-h-screen bg-background">
+            <div className="flex">
+              <DashboardSidebar
+                open={menuOpen}
+                onClose={() => setMenuOpen(false)}
+              />
 
-            {/* min-w-0 stops a wide table from stretching the column past the viewport */}
-            <div className="flex min-w-0 flex-1 flex-col">
-              <DashboardTopBar onMenuClick={() => setMenuOpen(true)} />
-              <main className="flex-1 px-4 pb-12 sm:px-6 lg:px-8">
-                {children}
-              </main>
+              {/* min-w-0 stops a wide table from stretching the column past the viewport */}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <DashboardTopBar onMenuClick={() => setMenuOpen(true)} />
+                <main className="flex-1 px-4 pb-12 sm:px-6 lg:px-8">
+                  {children}
+                </main>
+              </div>
             </div>
           </div>
-        </div>
+        </AccountProvider>
       </AccessProvider>
     </StorefrontProvider>
   );

@@ -45,7 +45,6 @@ export const SECTIONS: Section[] = [
   { key: 'payments', label: 'Payments', href: '/dashboard/payments', sensitive: true },
   { key: 'notifications', label: 'Notifications', href: '/dashboard/notifications' },
   { key: 'messages', label: 'Messages', href: '/dashboard/messages' },
-  { key: 'shipping', label: 'Shipping', href: '/dashboard/shipping' },
   { key: 'user-roles', label: 'User Roles', href: '/dashboard/user-roles', sensitive: true },
   { key: 'plans', label: 'Plans', href: '/dashboard/plans', sensitive: true },
   { key: 'settings', label: 'Settings', href: '/dashboard/settings', sensitive: true },
@@ -85,7 +84,6 @@ export const ROLE_PRESETS: Record<Exclude<Role, 'CUSTOM'>, Permissions> = {
   EDITOR: withOverrides('VIEW', {
     products: 'MANAGE',
     orders: 'MANAGE',
-    shipping: 'MANAGE',
     messages: 'MANAGE',
     complaints: 'MANAGE',
     payments: 'NONE',

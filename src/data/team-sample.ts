@@ -45,15 +45,14 @@ export const TEAM: TeamMember[] = [
     status: 'Active'
   },
   {
-    /* A warehouse hand who only ever touches orders and shipping — the case
-       presets do not cover. */
+    /* A warehouse hand who processes orders and needs to look products up,
+       but nothing else — the case presets do not cover. */
     id: 'u-6',
     name: 'Bilal Rauf',
     email: 'bilal.rauf@example.ae',
     role: 'CUSTOM',
     custom: {
       orders: 'MANAGE',
-      shipping: 'MANAGE',
       products: 'VIEW'
     },
     joinedAt: '2025-03-06',

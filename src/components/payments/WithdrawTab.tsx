@@ -18,6 +18,7 @@ import {
 } from 'react-icons/hi';
 import DataTable, { type Column } from 'components/dashboard/DataTable';
 import Panel from 'components/dashboard/Panel';
+import { useAccount } from 'components/dashboard/AccountContext';
 import DetailRows from 'components/common/DetailRows';
 import FilterSelect from 'components/common/FilterSelect';
 import Modal from 'components/ui/Modal';
@@ -146,6 +147,10 @@ export default function WithdrawTab() {
   const balances = useMemo(() => balancesFor(EARNINGS, TODAY), []);
   const standing = useMemo(() => accountStanding(EARNINGS, TODAY), []);
 
+  /* Holiday mode, deletion and the cooling-off window after coming back all
+     close withdrawals — set in Settings, felt here. */
+  const { gate } = useAccount();
+
   /* The next few amounts to clear, so "on hold" is a date rather than a mystery. */
   const upcoming = useMemo(
     () =>
@@ -159,6 +164,13 @@ export default function WithdrawTab() {
   );
 
   const submit = () => {
+    /* The account gate comes first: a paused or freshly restored account
+       cannot move money however healthy its balance looks. */
+    if (!gate.allowed) {
+      setFormError(gate.reason);
+      return;
+    }
+
     const value = Number(amount);
     const problem = withdrawalProblem(value, balances, standing.standing);
     if (problem) {
@@ -378,7 +390,7 @@ export default function WithdrawTab() {
             {!showForm && (
               <button
                 type="button"
-                disabled={paused || balances.available <= 0}
+                disabled={paused || !gate.allowed || balances.available <= 0}
                 onClick={() => {
                   setShowForm(true);
                   setFormError(null);
@@ -463,10 +475,22 @@ export default function WithdrawTab() {
               </div>
             </div>
           ) : (
-            <p className="mt-3 text-12 text-gray">
-              {paused
-                ? 'Withdrawals are paused while your account is under review.'
-                : `Requests are checked against your dispatched orders before they are paid, so a request sits as "in process" until that is done.`}
+            /* A disabled button with no reason is a dead end, so whichever
+               thing is holding withdrawals closed says so here. */
+            <p className="mt-3 flex items-start gap-2 text-12 text-gray">
+              {!gate.allowed && (
+                <HiExclamationCircle
+                  aria-hidden="true"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                />
+              )}
+              <span>
+                {!gate.allowed
+                  ? gate.reason
+                  : paused
+                    ? 'Withdrawals are paused while your account is under review.'
+                    : `Requests are checked against your dispatched orders before they are paid, so a request sits as "in process" until that is done.`}
+              </span>
             </p>
           )}
         </Panel>

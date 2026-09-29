@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@apollo/client';
 import {
   HiChevronDown,
   HiChevronLeft,
   HiChevronRight,
   HiOutlineCalendar,
+  HiOutlineChatAlt2,
   HiOutlineDownload,
   HiOutlineEye,
   HiOutlinePencil,
@@ -33,6 +35,8 @@ import {
 } from 'data/products-sample';
 import { firstWords } from 'lib/formatters';
 import { MODE_LABEL } from 'lib/storefront';
+import { MY_SELLER_QUESTIONS } from 'graphql/questions';
+import type { MySellerQuestionsResult } from 'types/question';
 
 const TABS = ['All', 'Approved', 'Pending', 'Cancelled'] as const;
 type Tab = (typeof TABS)[number];
@@ -108,6 +112,13 @@ function FilterSelect({
 
 export default function ProductListView() {
   const { mode } = useStorefront();
+
+  /* Just the badge — the queue itself lives on its own page. */
+  const { data: questionData } = useQuery<MySellerQuestionsResult>(
+    MY_SELLER_QUESTIONS,
+    { variables: { answered: false }, errorPolicy: 'all' }
+  );
+  const unanswered = questionData?.mySellerQuestions?.length ?? 0;
 
   const [tab, setTab] = useState<Tab>('All');
   const [search, setSearch] = useState('');
@@ -368,13 +379,29 @@ export default function ProductListView() {
           { label: `${MODE_LABEL[mode]} listings` }
         ]}
         actions={
-          <Link
-            href="/dashboard/products/new"
-            className="flex items-center gap-1.5 rounded-md bg-primary px-5 py-2 text-14 font-medium text-white transition-colors hover:bg-primary/90"
-          >
-            <HiOutlinePlus className="h-4 w-4" />
-            Add Product
-          </Link>
+          <>
+            {/* Buyers ask about products here, so the queue lives with them. */}
+            <Link
+              href="/dashboard/products/questions"
+              className="flex items-center gap-1.5 rounded-md border border-secondary/20 bg-white px-4 py-2 text-14 font-medium text-secondary transition-colors hover:border-primary hover:text-primary"
+            >
+              <HiOutlineChatAlt2 className="h-4 w-4" />
+              Questions
+              {unanswered > 0 && (
+                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-11 font-semibold text-white">
+                  {unanswered}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              href="/dashboard/products/new"
+              className="flex items-center gap-1.5 rounded-md bg-primary px-5 py-2 text-14 font-medium text-white transition-colors hover:bg-primary/90"
+            >
+              <HiOutlinePlus className="h-4 w-4" />
+              Add Product
+            </Link>
+          </>
         }
       />
 

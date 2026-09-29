@@ -9,7 +9,6 @@ import {
   HiOutlineShoppingBag,
   HiOutlineShoppingCart,
   HiOutlineSupport,
-  HiOutlineTruck,
   HiOutlineUserAdd
 } from 'react-icons/hi';
 
@@ -60,7 +59,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     title: 'Settings',
     items: [
-      { label: 'Shipping', href: '/dashboard/shipping', icon: HiOutlineTruck },
       {
         label: 'User Roles',
         href: '/dashboard/user-roles',
